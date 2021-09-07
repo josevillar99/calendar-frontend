@@ -29,8 +29,8 @@ export const Navbar = (props) => {
                     <li className={`nav-item ${id == 'filtros' ? 'active' : ''} `}>
                         <Link to="/filtros" className="nav-link">Filtros</Link>
                     </li>
-                    {user.id == 1 &&
-                        <li className={`nav-item ${id == 'admin' ? 'active' : ''} `}>
+                    {user.id == 5 &&
+                        <li clasName={`nav-item ${id == 'admin' ? 'active' : ''} `}>
                             <Link to="/" className={`nav-link" `} >Admin</Link>
                         </li>
                     }
