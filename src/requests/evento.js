@@ -97,3 +97,24 @@ export const DeleteEvento = async (data) => {
         return false;
     }
 };
+
+export const getTotal = async (data) => {
+    const formDataConvert = new FormData();
+    formDataConvert.append("evento", 'getTotal');
+    formDataConvert.append("mes", data);
+
+    try {
+        const response = await axios.post(
+            variables.serverURLRoot + '/index.php',
+            formDataConvert
+        );
+        // console.log(response)
+        if (response.data) {
+            return response.data;
+        }
+        return false;
+    } catch (a) {
+        console.log(a)
+        return false;
+    }
+}

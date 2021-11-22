@@ -31,6 +31,7 @@ const Filtros = ({ history }) => {
         concepto: '',
     })
     const [data, setData] = useState([{}])
+    const [total, setTotal] = useState([{}])
     const [conceptos, setConceptos] = useState([{}])
 
     useEffect(() => {
@@ -76,7 +77,8 @@ const Filtros = ({ history }) => {
     }
 
     const getData = async (e) => {
-        let sql = "";
+        let sql1 = "";
+        let sql2 = "";
         let val = 0;
         if (e != undefined) val = e
         else val = filter;
@@ -85,44 +87,62 @@ const Filtros = ({ history }) => {
 
         switch (val) {
             case '0':
-                sql = 'SELECT e.*, c.nombre FROM eventos AS e LEFT JOIN conceptos c ON e.concepto = c.id where activo = 1 and id_usuario = ' + user.id + ' ORDER BY DATE DESC;'
+                sql1 = 'SELECT e.*, c.nombre FROM eventos AS e LEFT JOIN conceptos c ON e.concepto = c.id where activo = 1 and id_usuario = ' + user.id + ' ORDER BY DATE DESC;'
+                sql2 = 'SELECT SUM(total) as tot FROM eventos AS e LEFT JOIN conceptos c ON e.concepto = c.id where activo = 1 and id_usuario = ' + user.id + ' ORDER BY DATE DESC;'
                 break;
             case '1':
                 if (filtros.date1 != '' && filtros.date2 === '') {
-                    sql = 'Select e.*, c.nombre from eventos e LEFT JOIN conceptos c ON e.concepto = c.id'
+                    sql1 = 'Select e.*, c.nombre from eventos e LEFT JOIN conceptos c ON e.concepto = c.id'
+                        + ' where activo = 1 && DATE >= "' + filtros.date1 + '" and id_usuario = ' + user.id + ' ORDER BY DATE DESC;';
+                    sql2 = 'Select  SUM(total) as tot from eventos e LEFT JOIN conceptos c ON e.concepto = c.id'
                         + ' where activo = 1 && DATE >= "' + filtros.date1 + '" and id_usuario = ' + user.id + ' ORDER BY DATE DESC;';
                 } else if (filtros.date1 === '' && filtros.date2 != '') {
-                    sql = 'Select e.*, c.nombre from eventos e LEFT JOIN conceptos c ON e.concepto = c.id'
+                    sql1 = 'Select e.*, c.nombre from eventos e LEFT JOIN conceptos c ON e.concepto = c.id'
+                        + ' where activo = 1 && DATE <= "' + filtros.date2 + '" and id_usuario = ' + user.id + ' ORDER BY DATE DESC;';
+                    sql2 = 'Select  SUM(total) as tot from eventos e LEFT JOIN conceptos c ON e.concepto = c.id'
                         + ' where activo = 1 && DATE <= "' + filtros.date2 + '" and id_usuario = ' + user.id + ' ORDER BY DATE DESC;';
                 } else if (filtros.date1 != '' && filtros.date2 != '') {
-                    sql = 'Select e.*, c.nombre from eventos e LEFT JOIN conceptos c ON e.concepto = c.id'
+                    sql1 = 'Select e.*, c.nombre from eventos e LEFT JOIN conceptos c ON e.concepto = c.id'
                         + ' where activo = 1 && DATE >= "' + filtros.date1 + '" && DATE <= "' + filtros.date2 + '" and id_usuario = ' + user.id + ' ORDER BY DATE DESC;';
-                } else sql = false;
+                    sql2 = 'Select SUM(total) as tot from eventos e LEFT JOIN conceptos c ON e.concepto = c.id'
+                        + ' where activo = 1 && DATE >= "' + filtros.date1 + '" && DATE <= "' + filtros.date2 + '" and id_usuario = ' + user.id + ' ORDER BY DATE DESC;';
+                } else sql1 = false;
                 break;
             case '2':
                 if (filtros.number1 != '' && filtros.number2 != '') {
-                    sql = 'Select e.*, c.nombre from eventos e LEFT JOIN conceptos c ON e.concepto = c.id'
+                    sql1 = 'Select e.*, c.nombre from eventos e LEFT JOIN conceptos c ON e.concepto = c.id'
+                        + ' where activo = 1 && total >= ' + filtros.number1 + ' && total <= ' + filtros.number2 + ' and id_usuario = ' + user.id + ' ORDER BY DATE DESC;'
+                    sql2 = 'Select SUM(total) as tot from eventos e LEFT JOIN conceptos c ON e.concepto = c.id'
                         + ' where activo = 1 && total >= ' + filtros.number1 + ' && total <= ' + filtros.number2 + ' and id_usuario = ' + user.id + ' ORDER BY DATE DESC;'
                 } else if (filtros.number1 != '' && filtros.number2 === '') {
-                    sql = 'Select e.*, c.nombre from eventos e LEFT JOIN conceptos c ON e.concepto = c.id'
+                    sql1 = 'Select e.*, c.nombre from eventos e LEFT JOIN conceptos c ON e.concepto = c.id'
+                        + ' where activo = 1 && total >= ' + filtros.number1 + '  and id_usuario = ' + user.id + ' ORDER BY DATE DESC;'
+                    sql2 = 'Select SUM(total) as tot from eventos e LEFT JOIN conceptos c ON e.concepto = c.id'
                         + ' where activo = 1 && total >= ' + filtros.number1 + '  and id_usuario = ' + user.id + ' ORDER BY DATE DESC;'
                 } else if (filtros.number1 === '' && filtros.number2 != '') {
-                    sql = 'Select e.*, c.nombre from eventos e LEFT JOIN conceptos c ON e.concepto = c.id'
+                    sql1 = 'Select e.*, c.nombre from eventos e LEFT JOIN conceptos c ON e.concepto = c.id'
                         + ' where activo = 1 && total <= ' + filtros.number2 + ' and id_usuario = ' + user.id + ' ORDER BY DATE DESC;'
-                } else sql = false;
+                    sql2 = 'Select SUM(total) as tot from eventos e LEFT JOIN conceptos c ON e.concepto = c.id'
+                        + ' where activo = 1 && total <= ' + filtros.number2 + ' and id_usuario = ' + user.id + ' ORDER BY DATE DESC;'
+                } else sql1 = false;
                 break;
             case '3':
                 if (filtros.concepto != '0') {
-                    sql = 'Select e.*, c.nombre from eventos e LEFT JOIN conceptos c ON e.concepto = c.id'
+                    sql1 = 'Select e.*, c.nombre from eventos e LEFT JOIN conceptos c ON e.concepto = c.id'
                         + ' where activo = 1 && c.id = ' + filtros.concepto + ' and id_usuario = ' + user.id + ' ORDER BY DATE DESC;'
-                } else sql = false;
+                    sql2 = 'Select SUM(total) as tot from eventos e LEFT JOIN conceptos c ON e.concepto = c.id'
+                        + ' where activo = 1 && c.id = ' + filtros.concepto + ' and id_usuario = ' + user.id + ' ORDER BY DATE DESC;'
+                } else sql1 = false;
                 break;
         }
-        if (sql != false) {
+        if (sql1 != false) {
             // console.log(sql)
-            const response = await reqFiltros.getEventosBy(sql);
-            // console.log(response)
-            if (response) setData(response);
+            const response = await reqFiltros.getEventosBy(sql1, sql2);
+            console.log(response)
+            if (response) {
+                setData(response[1]);
+                setTotal(Math.round(response[0].tot * 100)/100);
+            }
             else setData([{}]);
         } else setData([{}]);
     }
@@ -223,7 +243,6 @@ const Filtros = ({ history }) => {
                             <th scope="col">Titulo</th>
                             <th scope="col">Concepto</th>
                             <th scope="col">Total</th>
-                            <th scope="col">Ops</th>
                         </tr>
                     </thead>
                     <tbody>
@@ -247,16 +266,23 @@ const Filtros = ({ history }) => {
                                 )
                                 if (item.title === '' || item.title === undefined) return (<></>);
                                 return (
-                                    <tr key={i} className={` ${item.total.replace(',', '.') > 0 ? 'verde' : 'rojo'} `}>
-                                        {/* var date = moment("2014-02-27T10:00:00").format('DD-MM-YYYY'); */}
-                                        <td>{moment(item.date).format('DD [de] MMMM [del] YYYY')}</td>
-                                        <td>{item.title}</td>
-                                        <td>{item.nombre}</td>
-                                        {/* <td>{item.total}</td> */}
-                                        <td>{item.total}</td>
-                                        <td></td>
-                                    </tr>
-
+                                    <>
+                                        {i == 0 &&
+                                            <tr style={{backgroundColor: '#f20adf'}}>
+                                                <td colSpan={4} style={{textAlign: 'center', fontWeight: 'bold'}}>
+                                                    TOTAL: {total}€
+                                                </td>
+                                            </tr>
+                                        }
+                                        <tr key={i} className={` ${item.total.replace(',', '.') > 0 ? 'verde' : 'rojo'} `}>
+                                            {/* var date = moment("2014-02-27T10:00:00").format('DD-MM-YYYY'); */}
+                                            <td>{moment(item.date).format('DD [de] MMMM [del] YYYY')}</td>
+                                            <td>{item.title}</td>
+                                            <td>{item.nombre}</td>
+                                            {/* <td>{item.total}</td> */}
+                                            <td>{item.total}</td>
+                                        </tr>
+                                    </>
                                 )
                             })
                         }

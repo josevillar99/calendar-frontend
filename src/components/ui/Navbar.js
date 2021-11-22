@@ -5,7 +5,7 @@ import Cookies from 'universal-cookie';
 
 export const Navbar = (props) => {
 
-    const { id, user, history } = props;
+    const { id, user, total, history } = props;
 
     const cookies = new Cookies();
 
@@ -17,6 +17,7 @@ export const Navbar = (props) => {
     return (
         <nav className="navbar navbar-expand-lg navbar-light bg-light">
             <a className="navbar-brand">{user ? user.name : ''}</a>
+            <span className="resumen-span resumen-mobile"> RESUMEN: {total}€</span>
             <button className="navbar-toggler" type="button" data-toggle="collapse" data-target="#navbarText" aria-controls="navbarText" aria-expanded="false" aria-label="Toggle navigation">
                 <span className="navbar-toggler-icon"></span>
             </button>
@@ -34,6 +35,9 @@ export const Navbar = (props) => {
                             <Link to="/" className={`nav-link" `} >Admin</Link>
                         </li>
                     }
+                    <li className={`nav-item resumen-sticky`}>
+                        <span className="nav-link resumen-span">RESUMEN: {total}€</span>
+                    </li>
                 </ul>
                 <span>
                     <button className="btn btn-outline-danger" onClick={salir}>

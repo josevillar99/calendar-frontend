@@ -84,16 +84,6 @@ const demoEvents = [
         concepto: 3,
         nombre_concepto: 'CAMARERO'
     },
-    // {
-    //     title: 'Compra',
-    //     notes: '1223231232',
-    //     total: -35.43,
-    //     start: new Date(Date.parse(now.toDate())),
-    //     end: new Date(Date.parse(nowPlus1.toDate())),
-    //     dateStart: null,
-    //     concepto: 6,
-    //     nombre_concepto: 'COMPRA ONLINE'
-    // },
 ]
 
 
@@ -132,13 +122,14 @@ export const CalendarScreen = ({ history }) => {
         }
     }
 
-
     const [activeEvent, setActiveEvent] = useState(null)
     const views = { month: true, agenda: true, week: true };
     const [events, setEvents] = useState([{}]);
     const [optionsConcepto, setOptionsConcepto] = useState([]);
 
     const [lastView, setLastView] = useState(localStorage.getItem('lastView') || 'month');
+    const [resumen, setResumen] = useState('Desconocido')
+    const [month, setMonth] = useState(moment().format("MMM").substr(0,3))
     const [openModal, setOpenModal] = useState(false)
     const [dateStart, setDateStart] = useState(now.toDate());
     const [dateEnd, setDateEnd] = useState(nowPlus1.toDate());
@@ -146,6 +137,10 @@ export const CalendarScreen = ({ history }) => {
     const [conceptoValid, setConceptoValid] = useState(true);
     const [formValues, setFormValues] = useState(initEvent);
     const { notes, title, start, end, concepto, total } = formValues;
+
+    useEffect(() => {
+        getTotal();
+    }, [month]);
 
     const onDoubleClick = (e) => {
         setOpenModal(true);
@@ -229,6 +224,16 @@ export const CalendarScreen = ({ history }) => {
             })
         }
         setOptionsConcepto(arrConceptos);
+    }
+
+    const getTotal = async () => {
+        if (!cookies.get('token')) {
+            history.replace(`/login`);
+            return;
+        }
+        const response = await reqEvento.getTotal(month);
+        if(response) setResumen(Math.round((response.total) * 100) / 100);
+        console.log(response);
     }
 
     //MODAL
@@ -405,15 +410,16 @@ export const CalendarScreen = ({ history }) => {
             })
             setDateStart(moment(e).minutes(0).seconds(0).add(12, 'hours')._d)
             setDateEnd(moment(e).minutes(0).seconds(0).add(15, 'hours')._d)
-            // console.log(formValues)
             setOpenModal(true);
         }
-        setLastView('month')
+        setLastView('month')        
+        let date = new Date(e);
+        setMonth(date.toLocaleString('en-us', { month: 'short' }));
     }
 
     return (
         <div className="calendar-screen">
-            <Navbar id='calendar' user={user} />
+            <Navbar id='calendar' user={user} total={resumen}/>
 
 
             <Calendar
@@ -453,7 +459,6 @@ export const CalendarScreen = ({ history }) => {
                     <span> Borrar evento </span>
                 </button>
             }
-
 
             <Modal
                 isOpen={openModal}
