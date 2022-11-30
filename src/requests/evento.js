@@ -98,10 +98,11 @@ export const DeleteEvento = async (data) => {
     }
 };
 
-export const getTotal = async (data) => {
+export const getTotal = async (data1, data2) => {
     const formDataConvert = new FormData();
     formDataConvert.append("evento", 'getTotal');
-    formDataConvert.append("mes", data);
+    formDataConvert.append("mes", data1);
+    formDataConvert.append("ano", data2);
 
     try {
         const response = await axios.post(

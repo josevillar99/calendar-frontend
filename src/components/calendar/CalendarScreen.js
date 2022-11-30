@@ -115,7 +115,7 @@ export const CalendarScreen = ({ history }) => {
     const getTokenId = async () => {
         if (cookies.get('token')) {
             let res = await reqLogin.getTokenId(cookies.get('token'), cookies, history);
-            // console.log(res)
+            console.log(res)
             setUser(res);
             getAllConceptos(res);
             getAllEventos(res);
@@ -130,6 +130,7 @@ export const CalendarScreen = ({ history }) => {
     const [lastView, setLastView] = useState(localStorage.getItem('lastView') || 'month');
     const [resumen, setResumen] = useState('Desconocido')
     const [month, setMonth] = useState(moment().format("MMM").substr(0,3))
+    const [year, setYear] = useState(moment().format("YYYY"));
     const [openModal, setOpenModal] = useState(false)
     const [dateStart, setDateStart] = useState(now.toDate());
     const [dateEnd, setDateEnd] = useState(nowPlus1.toDate());
@@ -212,7 +213,9 @@ export const CalendarScreen = ({ history }) => {
             history.replace(`/login`);
             return;
         }
-        const response = await reqConcepto.getAll(cookies.get('token'), cookies, history);
+        let response = '';
+        if (user){ response = await reqConcepto.getAll(user.id, cookies.get('token'), cookies, history);
+        }else response = await reqConcepto.getAll(1, cookies.get('token'), cookies, history);
         let arrConceptos = [];
 
         if (response && Array.isArray(response)) {
@@ -231,9 +234,8 @@ export const CalendarScreen = ({ history }) => {
             history.replace(`/login`);
             return;
         }
-        const response = await reqEvento.getTotal(month);
+        const response = await reqEvento.getTotal(month, year);
         if(response) setResumen(Math.round((response.total) * 100) / 100);
-        console.log(response);
     }
 
     //MODAL
@@ -346,8 +348,7 @@ export const CalendarScreen = ({ history }) => {
         }
         if (e) {
             if (e.__isNew__) {
-                // console.log(e)
-                const res = await reqConcepto.addConcepto(e.label);
+                const res = await reqConcepto.addConcepto(e.label, user.id);
                 setFormValues({
                     ...formValues,
                     concepto: {
