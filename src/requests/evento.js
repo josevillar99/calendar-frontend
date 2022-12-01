@@ -109,7 +109,6 @@ export const getTotal = async (data1, data2) => {
             variables.serverURLRoot + '/index.php',
             formDataConvert
         );
-        // console.log(response)
         if (response.data) {
             return response.data;
         }

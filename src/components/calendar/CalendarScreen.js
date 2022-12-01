@@ -143,6 +143,10 @@ export const CalendarScreen = ({ history }) => {
         getTotal();
     }, [month]);
 
+    useEffect(() => {
+        getTotal();
+    }, [0]);
+
     const onDoubleClick = (e) => {
         setOpenModal(true);
     }
@@ -234,8 +238,11 @@ export const CalendarScreen = ({ history }) => {
             history.replace(`/login`);
             return;
         }
+        console.log({month, year})
         const response = await reqEvento.getTotal(month, year);
-        if(response) setResumen(Math.round((response.total) * 100) / 100);
+        console.log(response)
+        if(response) setResumen(response.total);
+        else if (response.total == null) setResumen(0)
     }
 
     //MODAL
@@ -302,16 +309,7 @@ export const CalendarScreen = ({ history }) => {
         }
 
         setConceptoValid(true);
-
-
-
-        // if (user.id == 0) {
-        //     Swal.fire(
-        //         'Denegado',
-        //         'No tienes permisos',
-        //         'warning'
-        //     )
-        // } else {
+        formValues.total = formValues.total.replace(",", ".");
         if (activeEvent) {
             const res = await reqEvento.UpdateEvento(formValues, startDate);
             console.log('11-> ' + res)
@@ -416,6 +414,7 @@ export const CalendarScreen = ({ history }) => {
         setLastView('month')        
         let date = new Date(e);
         setMonth(date.toLocaleString('en-us', { month: 'short' }));
+        setYear(date.getFullYear());
     }
 
     return (
